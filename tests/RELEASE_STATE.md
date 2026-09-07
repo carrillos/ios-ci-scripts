@@ -19,8 +19,12 @@ fail closed. The caller must obtain reachability from Git, not contributor input
 `scripts/distribution/release-git.py` now provides read-only local Git integration: full commit IDs,
 bounded literal metadata parsing from blobs, regular-file checks, historical
 change attribution, current-base comparison, and peeled-tag ancestry checks.
-Load both modules from the same trusted revision, never from PR-supplied code.
-The parser is not a general YAML parser. Callers supply their own change scopes.
+Load the decision/Git modules and shared `release_yaml.py` from the same trusted
+revision, never from PR-supplied code. Install the pinned
+`scripts/distribution/requirements-release.txt` in a virtual environment first.
+The parser uses SafeLoader node composition, rejects duplicate keys and aliases,
+and reads only supported XcodeGen settings paths. It does not resolve includes,
+templates, setting groups or xcconfig inheritance. Callers supply change scopes.
 Synthetic local repositories test the adapter without network access.
 
 Remote-head verification, API adapters, immutable-tag reconciliation,

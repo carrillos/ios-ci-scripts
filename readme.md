@@ -329,14 +329,30 @@ without committing, tagging, or performing any other Git operation:
 The default is a patch bump. `--build` also increments `CURRENT_PROJECT_VERSION`;
 `--dry-run` reports the proposed version without writing. The new marketing
 version is the only stdout output; diagnostics go to stderr and invalid input
-exits 2. Python 3 (standard library only) is required.
+exits 2. Python 3 and pinned PyYAML are required. In an activated virtual
+environment, install the trusted dependency file before invoking the script:
 
-This is a bounded line-oriented editor, not a general YAML parser. It accepts
-literal decimal `X.Y` or `X.Y.Z` marketing versions and integer build versions,
-plain or single/double quoted with optional trailing comments. Repeated
-declarations must agree. Updates preserve comments, newlines, and file mode,
-normalize decimal components, and replace the file atomically. Symlink inputs
-are rejected. The existing `bump-version.sh` interfaces remain unchanged.
+```sh
+python3 -m pip install -r scripts/distribution/requirements-release.txt
+```
+
+The shared parser uses PyYAML SafeLoader composition without constructing YAML
+objects. It reads literal decimal versions only in project/target `settings`
+(simple maps, `base`, or `configs`). Text blocks and comments are not settings.
+Repeated settings in different maps must agree; duplicate mapping keys, aliases,
+anchors, explicit tags, conflicting values, and mixed simple/advanced settings
+are rejected. Existing build values are validated even without `--build`.
+Includes, templates, groups, and xcconfig inheritance are not evaluated: versions
+must be explicit in supported paths. This is not an effective-settings resolver.
+Updates replace only scalar spans, preserving comments, newlines, and file mode,
+and replace the file atomically. Symlink inputs are rejected.
+
+The CLI now requires `scripts/distribution/release_version.py` and `release_yaml.py`;
+copying just the shell file no longer works. Privileged consumers must materialize
+the entry point, both helpers, and requirements from one trusted revision, install
+dependencies in an isolated environment, and never load PR-supplied Python code
+or dependency files. Python runs in isolated mode to ignore contributor Python
+paths. The existing `bump-version.sh` interfaces remain unchanged.
 
 Run its synthetic tests with:
 

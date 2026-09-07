@@ -36,8 +36,8 @@ class GitTests(unittest.TestCase):
         return subprocess.check_output(['git', *args], cwd=self.root, env=self.env).decode().strip()
 
     def write(self, version, build):
-        self.path.write_text('MARKETING_VERSION: "' + version +
-                             '"\nCURRENT_PROJECT_VERSION: ' + build + '\n')
+        self.path.write_text('settings:\n  MARKETING_VERSION: "' + version +
+                             '"\n  CURRENT_PROJECT_VERSION: ' + build + '\n')
 
     def commit(self):
         self.git('add', '--', '.')
@@ -78,7 +78,7 @@ class GitTests(unittest.TestCase):
     def test_new_project_and_bad_identity(self):
         new = self.root / 'new/project.yml'
         new.parent.mkdir()
-        new.write_text('MARKETING_VERSION: 1.0\nCURRENT_PROJECT_VERSION: 1\n')
+        new.write_text('settings:\n  MARKETING_VERSION: 1.0\n  CURRENT_PROJECT_VERSION: 1\n')
         head = self.commit()
         self.assertEqual(self.repo.inspect(self.base, head, 'new/project.yml', ['new']), 'new')
         for sha in ('HEAD', '--help', '0' * 40):
@@ -97,7 +97,7 @@ class GitTests(unittest.TestCase):
 
     def test_metadata_duplicates_and_layout(self):
         self.assertEqual(adapter.metadata(
-            "MARKETING_VERSION: '01.0' # note\nMARKETING_VERSION: 1.0.0\nCURRENT_PROJECT_VERSION: 01\n"),
+            "settings:\n  MARKETING_VERSION: '01.0' # note\n  CURRENT_PROJECT_VERSION: 01\n"),
             ('1.0.0', '1'))
         for text in ('MARKETING_VERSION: 1.0\nMARKETING_VERSION: 2.0\nCURRENT_PROJECT_VERSION: 1',
                      '{MARKETING_VERSION: 1.0}\nCURRENT_PROJECT_VERSION: 1',

@@ -14,28 +14,11 @@ state = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(state)
 
 
-def metadata(text):
-    result = []
-    for key, parse in (('MARKETING_VERSION', state.version),
-                       ('CURRENT_PROJECT_VERSION', state.build)):
-        values = []
-        for line in text.splitlines():
-            if line.lstrip().startswith('#'):
-                continue
-            if not re.search(r"""(?:^|[\s{,])['"]?""" + key + r"""['"]?\s*:""", line):
-                continue
-            match = re.fullmatch(
-                r'[ \t]*' + key + r""":[ \t]*(?:"([0-9.]+)"|'([0-9.]+)'|([0-9.]+))(?:[ \t]+#.*|[ \t]*)""",
-                line)
-            if match is None:
-                raise ValueError('unsupported ' + key + ' declaration')
-            value = next(value for value in match.groups() if value is not None)
-            values.append(parse(value))
-        if not values or any(value != values[0] for value in values):
-            raise ValueError('missing or inconsistent ' + key)
-        result.append('.'.join(map(str, values[0])) if isinstance(values[0], tuple)
-                      else str(values[0]))
-    return tuple(result)
+yaml_spec = importlib.util.spec_from_file_location(
+    'release_yaml', Path(__file__).with_name('release_yaml.py'))
+release_yaml = importlib.util.module_from_spec(yaml_spec)
+yaml_spec.loader.exec_module(release_yaml)
+metadata = release_yaml.metadata
 
 
 class Repository:
