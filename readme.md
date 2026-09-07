@@ -360,6 +360,15 @@ Run its synthetic tests with:
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p test_xcodegen_versions.py
 ```
 
+### Optional PR release preparation
+
+`workflows/release-prep.yml` is a single-project XcodeGen example for adopters who
+want version changes reviewed in the PR. Configure its project/helper paths and
+read `tests/RELEASE_STATE.md` before adoption. It uses base-trusted helpers, checks
+the observed remote head, and validates fork PRs without writing to them. Required
+strict branch freshness and hosted token/status behavior must be tested separately.
+It does not replace post-merge tagging or dispatch releases.
+
 ### distribute.sh
 
 Builds a Release archive, exports an ad-hoc IPA, and uploads it to

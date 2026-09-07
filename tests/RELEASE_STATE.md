@@ -27,7 +27,24 @@ and reads only supported XcodeGen settings paths. It does not resolve includes,
 templates, setting groups or xcconfig inheritance. Callers supply change scopes.
 Synthetic local repositories test the adapter without network access.
 
-Remote-head verification, API adapters, immutable-tag reconciliation,
-workflow wiring, and hosted freshness verification remain follow-up work.
+`release-check.py` now exposes `inspect` and `remote-head` commands for workflows.
+The latter checks an exact branch/pull ref against an immutable expected commit;
+missing refs and Git failures fail closed. `workflows/release-prep.yml` is an
+opt-in single-project example: configure PROJECT_DIR and SCRIPTS_ROOT in the
+trusted base definition. It loads helpers from the base checkout (including the
+base-pinned submodule), validates fork PRs without mutation, and permits ordinary
+fast-forward preparation pushes only for same-repository PRs. Install the template
+only after the base-pinned helper revision contains these files; never use head
+copies as a fallback. A contributor must provide both higher values on a fork.
+
+Local bare-remote tests execute the actual template preparation shell, covering
+bumps, retries, fork validation, missing heads, malformed versions and concurrent
+push rejection. Head checks are not a transaction across Git and GitHub: branch
+deletion/recreation or administrative rewrites can still race. Status is bound to
+the exact SHA, and strict up-to-date branch checks remain required.
+
+API adapters, immutable-tag reconciliation and hosted freshness verification remain follow-up work.
 This module does not enforce branch protection, certify compilation, or alter
-the existing tagging workflow and its legacy moving-tag behavior.
+the existing tagging workflow and its legacy moving-tag behavior. A disposable
+hosted trial must verify bot-push CI, fork statuses and required-check enforcement
+before making this template a required merge gate. No hosted trial is claimed.
