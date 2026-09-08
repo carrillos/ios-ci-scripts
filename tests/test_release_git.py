@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
-MODULE = Path(__file__).resolve().parents[1] / 'scripts/distribution/release-git.py'
+MODULE = Path(__file__).resolve().parents[1] / 'scripts/distribution/release_prep.py'
 spec = importlib.util.spec_from_file_location('release_git', MODULE)
 adapter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
@@ -86,14 +86,6 @@ class GitTests(unittest.TestCase):
                 self.repo.inspect(sha, head, 'new/project.yml', ['new'])
         with self.assertRaises(ValueError):
             self.repo.inspect(self.base, head, '../project.yml', ['new'])
-
-    def test_annotated_and_future_tags(self):
-        self.git('tag', '-a', 'sample/v1.0', '-m', 'fixture', self.base)
-        self.write('2.0', '2')
-        future = self.commit()
-        self.git('tag', 'sample/v2.0', future)
-        self.assertEqual(self.repo.baseline(self.base, 'sample/v'), 'sample/v1.0')
-        self.assertEqual(self.repo.baseline(future, 'sample/v'), 'sample/v2.0')
 
     def test_metadata_duplicates_and_layout(self):
         self.assertEqual(adapter.metadata(

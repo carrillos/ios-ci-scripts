@@ -10,12 +10,16 @@ TESTS = Path(__file__).parent
 spec = importlib.util.spec_from_file_location('git_tests', TESTS / 'test_release_git.py')
 fixtures = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fixtures)
-CLI = fixtures.MODULE.with_name('release-check.py')
+CLI = fixtures.MODULE.with_name('release_prep.py')
 
 
-class WorkflowTests(fixtures.GitTests):
+class WorkflowTests(unittest.TestCase):
+    git = fixtures.GitTests.git
+    write = fixtures.GitTests.write
+    commit = fixtures.GitTests.commit
+
     def setUp(self):
-        super().setUp()
+        fixtures.GitTests.setUp(self)
         remote_dir = tempfile.TemporaryDirectory()
         self.addCleanup(remote_dir.cleanup)
         self.remote = Path(remote_dir.name) / 'remote.git'
