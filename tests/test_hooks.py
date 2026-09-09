@@ -110,6 +110,11 @@ elif tool == 'swiftlint':
             self.assertEqual(second.read_bytes(), b'unstaged\n')
         self.assertFalse(self.calls('swift'))
 
+    def test_partial_staging_ignores_textconv(self):
+        (self.repo / '.gitattributes').write_text('*.swift diff=constant\n')
+        self.git('config', 'diff.constant.textconv', "printf 'same\\n' #")
+        self.test_partial_stage_preflight_preserves_all_files()
+
     def test_format_literal_names_and_rename(self):
         names = ['space name.swift', 'tab\tname.swift', 'line\nname.swift',
                  '日本.swift', '-option.swift', ':(glob)*.swift', '[ab].swift']

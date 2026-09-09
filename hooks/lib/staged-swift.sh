@@ -13,7 +13,7 @@ staged_swift_main() (
         exit "$status"
     }
     trap cleanup_staged_swift EXIT
-    git diff --cached --name-only -z --diff-filter=ACMR > "$scratch/selected"
+    git diff --no-ext-diff --no-textconv --cached --name-only -z --diff-filter=ACMR > "$scratch/selected"
     files=()
     merge_head=$(git rev-parse --git-path MERGE_HEAD)
     while IFS= read -r -d '' file; do
@@ -23,7 +23,7 @@ staged_swift_main() (
         inherited=false
         if [[ -f "$merge_head" ]]; then
             while IFS= read -r parent; do
-                if git diff --cached --quiet "$parent" -- ":(literal)$file"; then
+                if git diff --no-ext-diff --no-textconv --cached --quiet "$parent" -- ":(literal)$file"; then
                     inherited=true
                     break
                 else
@@ -42,7 +42,7 @@ staged_swift_main() (
             printf 'Cannot check non-regular Swift file: %q\n' "$file" >&2
             exit 1
         fi
-        if ! git diff --quiet -- ":(literal)$file"; then
+        if ! git diff --no-ext-diff --no-textconv --quiet -- ":(literal)$file"; then
             printf 'Commit blocked: %q has unstaged changes. Finish staging it or separate the changes before retrying.\n' "$file" >&2
             exit 1
         fi

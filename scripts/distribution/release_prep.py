@@ -123,7 +123,7 @@ def remote_head(repo, ref, expected):
     if not ref.startswith(('refs/heads/', 'refs/pull/')):
         raise ValueError('expected a full branch or pull-request head ref')
     repo.git('check-ref-format', ref)
-    rows = repo.git('ls-remote', '--exit-code', 'origin', ref).decode().splitlines()
+    rows = repo.git('ls-remote', 'origin', ref).decode().splitlines()
     if rows != [expected + '\t' + ref]:
         raise ValueError('PR head moved or disappeared; retry on the current head')
 

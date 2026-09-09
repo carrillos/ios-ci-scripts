@@ -42,9 +42,13 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(self.check_head(self.base).returncode, 2)
         self.assertEqual(self.check_head(head).returncode, 0)
         self.git('push', '-q', 'origin', ':refs/heads/topic')
-        self.assertEqual(self.check_head(head).returncode, 2)
+        result = self.check_head(head)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('PR head moved or disappeared', result.stderr)
         self.git('remote', 'set-url', 'origin', str(self.root / 'missing'))
-        self.assertEqual(self.check_head(head).returncode, 2)
+        result = self.check_head(head)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('Git operation failed', result.stderr)
 
     def test_inspection_cli_and_readonly_fork(self):
         (self.path.parent / 'source.txt').write_text('change')
