@@ -54,7 +54,11 @@ jobs:
       - name: Validate and prepare
         id: prep
         run: |
-          test "$(git rev-parse HEAD)" = "$HEAD_SHA"
+          actual_sha="$(git rev-parse HEAD)"
+          if [ "$actual_sha" != "$HEAD_SHA" ]; then
+            echo "::error::Checkout SHA mismatch: expected $HEAD_SHA, got $actual_sha"
+            exit 1
+          fi
           remote_ref="refs/pull/$PR_NUMBER/head"
           readonly_args=(--read-only)
           if [ "$SAME_REPO" = true ]; then
